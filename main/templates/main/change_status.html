@@ -1,0 +1,30 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Смена статуса заявки — Design.pro{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h2 style="margin-bottom: 15px;">Смена статуса заявки</h2>
+    <p style="margin-bottom: 15px;">
+        <strong>Заявка:</strong> {{ application.title }}<br>
+        <strong>Пользователь:</strong> {{ application.user.full_name }}
+    </p>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group {% if field.errors %}has-error{% endif %}">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn">Сохранить статус</button>
+            <a href="{% url 'admin_dashboard' %}" class="btn" style="background-color: #7f8c8d;">Назад</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

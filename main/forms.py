@@ -113,3 +113,51 @@ class ApplicationCreateForm(forms.ModelForm):
                 raise ValidationError('Размер файла не должен превышать 2 МБ.')
 
         return image
+
+class ChangeStatusForm(forms.Form):
+    STATUS_CHOICES = [
+        ('in_progress', 'Принято в работу'),
+        ('completed', 'Выполнено'),
+    ]
+
+    status = forms.ChoiceField(
+        label='Новый статус',
+        choices=STATUS_CHOICES,
+        required=True
+    )
+    comment = forms.CharField(
+        label='Комментарий (обязателен при статусе «Принято в работу»)',
+        widget=forms.Textarea(attrs={'rows': 3}),
+        required=False
+    )
+    design_image = forms.ImageField(
+        label='Изображение дизайна (обязательно при статусе «Выполнено»)',
+        required=False
+    )
+
+    def clean_design_image(self):
+        image = self.cleaned_data.get('design_image')
+        if image:
+            ext = os.path.splitext(image.name)[1].lower()
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.bmp']
+            if ext not in valid_extensions:
+                raise ValidationError('Недопустимый формат файла. Разрешены только: jpg, jpeg, png, bmp.')
+
+            max_size = 2 * 1024 * 1024
+            if image.size > max_size:
+                raise ValidationError('Размер файла не должен превышать 2 МБ.')
+        return image
+
+    def clean(self):
+        cleaned_data = super().clean()
+        status = cleaned_data.get('status')
+        comment = cleaned_data.get('comment', '').strip()
+        design_image = cleaned_data.get('design_image')
+
+        if status == 'in_progress' and not comment:
+            self.add_error('comment', 'Укажите комментарий при переводе заявки в работу.')
+
+        if status == 'completed' and not design_image:
+            self.add_error('design_image', 'Прикрепите изображение готового дизайна.')
+
+        return cleaned_data

@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseForbidden
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from .models import Application, User
-from .forms import RegisterForm, LoginForm, ApplicationCreateForm
-from django.http import HttpResponseForbidden
+from .forms import RegisterForm, LoginForm, ApplicationCreateForm, ChangeStatusForm
 
 
 def index(request):
@@ -31,7 +32,7 @@ def register_view(request):
                 full_name=form.cleaned_data['full_name'],
             )
             login(request, user)
-            return redirect('dashboard')  # <-- После регистрации отправляем в личный кабинет
+            return redirect('dashboard')
     else:
         form = RegisterForm()
 
@@ -40,6 +41,8 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('admin_dashboard')
         return redirect('dashboard')
 
     error_message = None
@@ -52,7 +55,9 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('dashboard')  # <-- После входа отправляем в личный кабинет
+                if user.is_staff:
+                    return redirect('admin_dashboard')
+                return redirect('dashboard')
             else:
                 error_message = 'Неверный логин или пароль.'
     else:
@@ -76,7 +81,7 @@ def create_application(request):
             application.user = request.user
             application.status = 'new'
             application.save()
-            return redirect('dashboard')  # <-- После создания заявки отправляем в личный кабинет
+            return redirect('dashboard')
     else:
         form = ApplicationCreateForm()
 
@@ -97,6 +102,7 @@ def dashboard(request):
     }
     return render(request, 'main/dashboard.html', context)
 
+
 @login_required
 def delete_application(request, pk):
     application = get_object_or_404(Application, pk=pk, user=request.user)
@@ -109,3 +115,33 @@ def delete_application(request, pk):
         return redirect('dashboard')
 
     return render(request, 'main/delete_application.html', {'application': application})
+
+
+@staff_member_required(login_url='login')
+def admin_dashboard(request):
+    applications = Application.objects.all().order_by('-created_at')
+    return render(request, 'main/admin_dashboard.html', {'applications': applications})
+
+
+@staff_member_required(login_url='login')
+def change_status(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if application.status != 'new':
+        return HttpResponseForbidden('Смена статуса возможна только для заявок со статусом «Новая».')
+
+    if request.method == 'POST':
+        form = ChangeStatusForm(request.POST, request.FILES)
+        if form.is_valid():
+            application.status = form.cleaned_data['status']
+            if application.status == 'in_progress':
+                application.comment = form.cleaned_data['comment']
+            elif application.status == 'completed':
+                application.design_image = form.cleaned_data['design_image']
+            application.save()
+            return redirect('admin_dashboard')
+    else:
+        form = ChangeStatusForm()
+
+    return render(request, 'main/change_status.html', {'form': form, 'application': application})
+

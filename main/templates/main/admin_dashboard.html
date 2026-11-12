@@ -1,0 +1,63 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Панель администратора — Design.pro{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Панель администратора — Все заявки</h2>
+        <a href="#" class="btn">Управление категориями</a>
+    </div>
+
+    {% if applications %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Пользователь</th>
+                    <th>Название и описание</th>
+                    <th>Категория</th>
+                    <th>План помещения</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                    <tr>
+                        <td>{{ app.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ app.user.full_name }}<br><small>({{ app.user.username }})</small></td>
+                        <td>
+                            <strong>{{ app.title }}</strong><br>
+                            <span style="font-size: 13px; color: #555;">{{ app.description }}</span>
+                            {% if app.comment %}
+                                <div style="margin-top: 5px; font-size: 13px; color: #d35400;">
+                                    <strong>Комментарий:</strong> {{ app.comment }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ app.category.name }}</td>
+                        <td>
+                            {% if app.plan_image %}
+                                <a href="{{ app.plan_image.url }}" target="_blank">Открыть план</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ app.status }}">
+                                {{ app.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if app.status == 'new' %}
+                                <a href="{% url 'change_status' app.pk %}" class="btn" style="padding: 5px 10px; font-size: 13px;">Сменить статус</a>
+                            {% else %}
+                                <span style="color: #999; font-size: 13px;">Статус закрыт</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Заявок пока нет.</p>
+    {% endif %}
+{% endblock %}

@@ -9,4 +9,7 @@ urlpatterns = [
     path('application/create/', views.create_application, name='create_application'),
     path('application/<int:pk>/delete/', views.delete_application, name='delete_application'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('panel/', views.admin_dashboard, name='admin_dashboard'),
+    path('panel/application/<int:pk>/status/', views.change_status, name='change_status'),
 ]
+
