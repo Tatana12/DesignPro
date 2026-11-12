@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Application, User
 from .forms import RegisterForm, LoginForm, ApplicationCreateForm
+from django.http import HttpResponseForbidden
 
 
 def index(request):
@@ -95,3 +96,16 @@ def dashboard(request):
         'status_filter': status_filter,
     }
     return render(request, 'main/dashboard.html', context)
+
+@login_required
+def delete_application(request, pk):
+    application = get_object_or_404(Application, pk=pk, user=request.user)
+
+    if application.status != 'new':
+        return HttpResponseForbidden('Нельзя удалить заявку, статус которой уже изменён администратором.')
+
+    if request.method == 'POST':
+        application.delete()
+        return redirect('dashboard')
+
+    return render(request, 'main/delete_application.html', {'application': application})

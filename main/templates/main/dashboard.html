@@ -42,7 +42,7 @@
                         </td>
                         <td>
                             {% if app.status == 'new' %}
-                                <a href="#" class="btn btn-danger" style="padding: 5px 10px; font-size: 13px;">Удалить</a>
+                                <a href="{% url 'delete_application' app.pk %}" class="btn btn-danger" style="padding: 5px 10px; font-size: 13px;">Удалить</a>
                             {% else %}
                                 <span style="color: #999; font-size: 13px;">Недоступно</span>
                             {% endif %}
