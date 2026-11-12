@@ -11,20 +11,23 @@
     <header>
         <div class="container nav-bar">
             <a href="{% url 'index' %}" class="logo">Design.pro</a>
-            <nav>
-                <a href="{% url 'index' %}">Главная</a>
-                {% if user.is_authenticated %}
-                    {% if user.is_staff %}
-                        <a href="#">Панель администратора</a>
-                    {% else %}
-                        <a href="#">Личный кабинет</a>
-                    {% endif %}
-                    <a href="#">Выход ({{ user.username }})</a>
-                {% else %}
-                    <a href="#">Вход</a>
-                    <a href="#">Регистрация</a>
-                {% endif %}
-            </nav>
+                        <nav>
+                            <a href="{% url 'index' %}">Главная</a>
+                            {% if user.is_authenticated %}
+                                {% if user.is_staff %}
+                                    <a href="#">Панель администратора</a>
+                                {% else %}
+                                    <a href="#">Личный кабинет</a>
+                                {% endif %}
+                                <form action="{% url 'logout' %}" method="post" class="logout-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="logout-btn">Выход ({{ user.username }})</button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'login' %}">Вход</a>
+                                <a href="{% url 'register' %}">Регистрация</a>
+                            {% endif %}
+                        </nav>
         </div>
     </header>
 

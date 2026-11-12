@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Вход — Design.pro{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h2 style="margin-bottom: 20px;">Вход в личный кабинет</h2>
+
+    {% if error_message %}
+        <div class="error-text" style="margin-bottom: 15px; font-weight: bold;">
+            {{ error_message }}
+        </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group {% if field.errors or error_message %}has-error{% endif %}">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn">Войти</button>
+    </form>
+</div>
+{% endblock %}

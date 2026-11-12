@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Регистрация — Design.pro{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h2 style="margin-bottom: 20px;">Регистрация</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group {% if field.errors %}has-error{% endif %}">
+                {% if field.name == 'agree' %}
+                    <label style="font-weight: normal; cursor: pointer;">
+                        {{ field }} {{ field.label }}
+                    </label>
+                {% else %}
+                    {{ field.label_tag }}
+                    {{ field }}
+                {% endif %}
+
+                {% for error in field.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn">Зарегистрироваться</button>
+    </form>
+</div>
+{% endblock %}
