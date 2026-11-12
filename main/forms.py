@@ -2,7 +2,7 @@ import os
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import User, Application
+from .models import User, Application, Category
 
 
 class RegisterForm(forms.Form):
@@ -161,3 +161,18 @@ class ChangeStatusForm(forms.Form):
             self.add_error('design_image', 'Прикрепите изображение готового дизайна.')
 
         return cleaned_data
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+        labels = {
+            'name': 'Название категории',
+        }
+        error_messages = {
+            'name': {
+                'required': 'Введите название категории.',
+                'unique': 'Категория с таким названием уже существует.',
+            }
+        }
+

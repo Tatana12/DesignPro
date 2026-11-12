@@ -11,5 +11,6 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('panel/', views.admin_dashboard, name='admin_dashboard'),
     path('panel/application/<int:pk>/status/', views.change_status, name='change_status'),
+    path('panel/categories/', views.manage_categories, name='manage_categories'),
+    path('panel/categories/<int:pk>/delete/', views.delete_category, name='delete_category'),
 ]
-

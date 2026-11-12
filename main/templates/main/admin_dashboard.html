@@ -5,7 +5,7 @@
 {% block content %}
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2>Панель администратора — Все заявки</h2>
-        <a href="#" class="btn">Управление категориями</a>
+        <a href="{% url 'manage_categories' %}" class="btn">Управление категориями</a>
     </div>
 
     {% if applications %}

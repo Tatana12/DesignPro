@@ -3,10 +3,8 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Application, User
-from .forms import RegisterForm, LoginForm, ApplicationCreateForm, ChangeStatusForm
-
-
+from .models import Application, User, Category
+from .forms import RegisterForm, LoginForm, ApplicationCreateForm, ChangeStatusForm, CategoryForm
 def index(request):
     in_progress_count = Application.objects.filter(status='in_progress').count()
     completed_apps = Application.objects.filter(status='completed').order_by('-created_at')[:4]
@@ -145,3 +143,30 @@ def change_status(request, pk):
 
     return render(request, 'main/change_status.html', {'form': form, 'application': application})
 
+@staff_member_required(login_url='login')
+def manage_categories(request):
+    categories = Category.objects.all().order_by('name')
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_categories')
+    else:
+        form = CategoryForm()
+
+    return render(request, 'main/manage_categories.html', {
+        'categories': categories,
+        'form': form,
+    })
+
+
+@staff_member_required(login_url='login')
+def delete_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+
+    if request.method == 'POST':
+        category.delete()
+        return redirect('manage_categories')
+
+    return render(request, 'main/delete_category.html', {'category': category})

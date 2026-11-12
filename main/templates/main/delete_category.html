@@ -1,0 +1,21 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Удаление категории — Design.pro{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h2 style="margin-bottom: 15px;">Удаление категории</h2>
+    <p style="margin-bottom: 15px;">
+        Вы действительно хотите удалить категорию <strong>«{{ category.name }}»</strong>?
+    </p>
+    <p style="margin-bottom: 20px; color: #e74c3c; font-size: 14px;">
+        Внимание: вместе с категорией будут автоматически удалены все связанные с ней заявки ({{ category.applications.count }} шт.)!
+    </p>
+
+    <form method="post" style="display: flex; gap: 10px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Да, удалить категорию</button>
+        <a href="{% url 'manage_categories' %}" class="btn" style="background-color: #7f8c8d;">Отмена</a>
+    </form>
+</div>
+{% endblock %}
