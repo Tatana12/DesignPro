@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from .models import Application, User
 from django.contrib.auth.decorators import login_required
+from .models import Application, User
 from .forms import RegisterForm, LoginForm, ApplicationCreateForm
 
 
@@ -18,7 +18,7 @@ def index(request):
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('index')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -30,7 +30,7 @@ def register_view(request):
                 full_name=form.cleaned_data['full_name'],
             )
             login(request, user)
-            return redirect('index')
+            return redirect('dashboard')  # <-- После регистрации отправляем в личный кабинет
     else:
         form = RegisterForm()
 
@@ -39,7 +39,7 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('index')
+        return redirect('dashboard')
 
     error_message = None
 
@@ -51,7 +51,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('index')  # Позже заменим на редирект в личный кабинет
+                return redirect('dashboard')  # <-- После входа отправляем в личный кабинет
             else:
                 error_message = 'Неверный логин или пароль.'
     else:
@@ -65,6 +65,7 @@ def logout_view(request):
         logout(request)
     return redirect('index')
 
+
 @login_required
 def create_application(request):
     if request.method == 'POST':
@@ -74,8 +75,23 @@ def create_application(request):
             application.user = request.user
             application.status = 'new'
             application.save()
-            return redirect('index')  # На следующем шаге заменим на редирект в личный кабинет ('dashboard')
+            return redirect('dashboard')  # <-- После создания заявки отправляем в личный кабинет
     else:
         form = ApplicationCreateForm()
 
     return render(request, 'main/create_application.html', {'form': form})
+
+
+@login_required
+def dashboard(request):
+    status_filter = request.GET.get('status', '')
+    applications = Application.objects.filter(user=request.user).order_by('-created_at')
+
+    if status_filter in ['new', 'in_progress', 'completed']:
+        applications = applications.filter(status=status_filter)
+
+    context = {
+        'applications': applications,
+        'status_filter': status_filter,
+    }
+    return render(request, 'main/dashboard.html', context)
