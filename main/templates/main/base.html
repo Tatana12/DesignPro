@@ -16,6 +16,7 @@
                             {% if user.is_authenticated %}
                                 {% if user.is_staff %}
                                     <a href="{% url 'admin_dashboard' %}">Панель администратора</a>
+                                    <a href="{% url 'manage_categories' %}">Категории</a>
                                 {% else %}
                                     <a href="{% url 'dashboard' %}">Личный кабинет</a>
                                     <a href="{% url 'create_application' %}">Создать заявку</a>

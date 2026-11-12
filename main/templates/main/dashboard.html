@@ -33,7 +33,19 @@
                     <tr>
                         <td>{{ app.created_at|date:"d.m.Y H:i" }}</td>
                         <td><strong>{{ app.title }}</strong></td>
-                        <td>{{ app.description }}</td>
+                        <td>
+                            {{ app.description }}
+                            {% if app.comment %}
+                                <div style="margin-top: 8px; font-size: 13px; color: #d35400;">
+                                    <strong>Комментарий студии:</strong> {{ app.comment }}
+                                </div>
+                            {% endif %}
+                            {% if app.design_image %}
+                                <div style="margin-top: 8px;">
+                                    <a href="{{ app.design_image.url }}" target="_blank" style="font-size: 13px; color: #27ae60; font-weight: bold;">Посмотреть готовый дизайн</a>
+                                </div>
+                            {% endif %}
+                        </td>
                         <td>{{ app.category.name }}</td>
                         <td>
                             <span class="badge badge-{{ app.status }}">
