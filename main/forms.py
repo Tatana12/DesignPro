@@ -1,7 +1,8 @@
+import os
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import User
+from .models import User, Application
 
 
 class RegisterForm(forms.Form):
@@ -79,3 +80,36 @@ class LoginForm(forms.Form):
         required=True,
         error_messages={'required': 'Введите пароль.'}
     )
+
+class ApplicationCreateForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['title', 'description', 'category', 'plan_image']
+        labels = {
+            'title': 'Название заявки',
+            'description': 'Описание',
+            'category': 'Категория',
+            'plan_image': 'Фото помещения или его план (jpg, jpeg, png, bmp, до 2 МБ)',
+        }
+        error_messages = {
+            'title': {'required': 'Введите название заявки.'},
+            'description': {'required': 'Введите описание заявки.'},
+            'category': {'required': 'Выберите категорию.'},
+            'plan_image': {'required': 'Загрузите фото помещения или план.'},
+        }
+
+    def clean_plan_image(self):
+        image = self.cleaned_data.get('plan_image')
+        if image:
+            # Проверка расширения файла
+            ext = os.path.splitext(image.name)[1].lower()
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.bmp']
+            if ext not in valid_extensions:
+                raise ValidationError('Недопустимый формат файла. Разрешены только: jpg, jpeg, png, bmp.')
+
+            # Проверка размера файла (не более 2 МБ)
+            max_size = 2 * 1024 * 1024
+            if image.size > max_size:
+                raise ValidationError('Размер файла не должен превышать 2 МБ.')
+
+        return image

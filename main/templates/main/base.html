@@ -18,6 +18,7 @@
                                     <a href="#">Панель администратора</a>
                                 {% else %}
                                     <a href="#">Личный кабинет</a>
+                                    <a href="{% url 'create_application' %}">Создать заявку</a>
                                 {% endif %}
                                 <form action="{% url 'logout' %}" method="post" class="logout-form">
                                     {% csrf_token %}

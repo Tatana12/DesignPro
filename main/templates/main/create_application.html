@@ -1,0 +1,22 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Создать заявку — Design.pro{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h2 style="margin-bottom: 20px;">Новая заявка на дизайн</h2>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group {% if field.errors %}has-error{% endif %}">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn">Отправить заявку</button>
+    </form>
+</div>
+{% endblock %}

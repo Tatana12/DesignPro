@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .models import Application, User
-from .forms import RegisterForm, LoginForm
+from django.contrib.auth.decorators import login_required
+from .forms import RegisterForm, LoginForm, ApplicationCreateForm
 
 
 def index(request):
@@ -63,3 +64,18 @@ def logout_view(request):
     if request.method == 'POST':
         logout(request)
     return redirect('index')
+
+@login_required
+def create_application(request):
+    if request.method == 'POST':
+        form = ApplicationCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            application = form.save(commit=False)
+            application.user = request.user
+            application.status = 'new'
+            application.save()
+            return redirect('index')  # На следующем шаге заменим на редирект в личный кабинет ('dashboard')
+    else:
+        form = ApplicationCreateForm()
+
+    return render(request, 'main/create_application.html', {'form': form})
