@@ -1,0 +1,27 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Главная — Design.pro{% endblock %}
+
+{% block content %}
+    <div class="counter-box">
+        Количество заявок в работе: <strong>{{ in_progress_count }}</strong>
+    </div>
+
+    <h2>Последние выполненные работы</h2>
+    {% if completed_apps %}
+        <div class="grid">
+            {% for app in completed_apps %}
+                <div class="card">
+                    {% if app.design_image %}
+                        <img src="{{ app.design_image.url }}" alt="{{ app.title }}">
+                    {% endif %}
+                    <h3>{{ app.title }}</h3>
+                    <p><strong>Категория:</strong> {{ app.category.name }}</p>
+                    <p><strong>Дата:</strong> {{ app.created_at|date:"d.m.Y H:i" }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="margin-top: 15px;">Выполненных работ пока нет.</p>
+    {% endif %}
+{% endblock %}
